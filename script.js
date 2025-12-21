@@ -4,7 +4,6 @@ const store = document.getElementById("store");
 // Your Cloudflare Worker URL
 const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/";
 
-// Recursive function to load all pages
 async function loadClothing(cursor = "") {
   try {
     const searchURL =
@@ -26,23 +25,26 @@ async function loadClothing(cursor = "") {
 
     if (!searchData.data || !searchData.data.length) return;
 
-    // Render items from search API
     searchData.data.forEach(item => {
+      const id = item.id;
+      const name = item.name || "Untitled";
+      const price = item.priceInRobux || "0"; // fallback
+      const imageUrl = `https://t0.rbxcdn.com/${id}`; // Roblox default thumbnail fallback
+
       const card = document.createElement("a");
       card.className = "card";
-      card.href = `https://www.roblox.com/catalog/${item.id}`;
+      card.href = `https://www.roblox.com/catalog/${id}`;
       card.target = "_blank";
 
       card.innerHTML = `
-        <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png">
-        <p>${item.name}</p>
-        <div class="price">${item.price ? item.price : "0"} R$</div>
+        <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png" alt="${name}">
+        <p>${name}</p>
+        <div class="price">${price} R$</div>
       `;
 
       store.appendChild(card);
     });
 
-    // Load next page
     if (searchData.nextPageCursor) {
       loadClothing(searchData.nextPageCursor);
     }
@@ -51,5 +53,4 @@ async function loadClothing(cursor = "") {
   }
 }
 
-// Start loading
 loadClothing();
