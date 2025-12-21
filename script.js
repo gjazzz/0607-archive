@@ -1,24 +1,28 @@
 const GROUP_ID = 319199393;
 const store = document.getElementById("store");
 
-async function fetchAllClothing(cursor = "") {
+async function fetchAll(cursor = "") {
   const url =
-    `https://catalog.roblox.com/v1/search/items/details?` +
-    `Category=3&CreatorType=2&CreatorTargetId=${GROUP_ID}` +
-    `&IncludeNotForSale=false&Limit=30` +
+    "https://catalog.roblox.com/v1/search/items?" +
+    "Category=3" +
+    "&AssetTypes=Shirt,Pants" +
+    "&CreatorType=Group" +
+    `&CreatorTargetId=${GROUP_ID}` +
+    "&SalesTypeFilter=1" +       // ONLY items for sale
+    "&Limit=30" +
     (cursor ? `&Cursor=${cursor}` : "");
 
   const res = await fetch(url);
-  const data = await res.json();
+  const json = await res.json();
 
-  data.data.forEach(item => {
+  json.data.forEach(item => {
     const card = document.createElement("a");
+    card.className = "card";
     card.href = `https://www.roblox.com/catalog/${item.id}`;
     card.target = "_blank";
-    card.className = "card";
 
     card.innerHTML = `
-      <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png" />
+      <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png">
       <p>${item.name}</p>
       <div class="price">${item.price} R$</div>
     `;
@@ -26,10 +30,9 @@ async function fetchAllClothing(cursor = "") {
     store.appendChild(card);
   });
 
-  if (data.nextPageCursor) {
-    fetchAllClothing(data.nextPageCursor);
+  if (json.nextPageCursor) {
+    fetchAll(json.nextPageCursor);
   }
 }
 
-fetchAllClothing();
-
+fetchAll();
