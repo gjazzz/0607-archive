@@ -1,9 +1,12 @@
 const GROUP_ID = 319199393;
 const store = document.getElementById("store");
 
-async function loadClothing(cursor = "") {
-  // STEP 1 — Get item IDs
+// Free public CORS proxy
+const PROXY = "https://cors.isomorphic-git.org/";
+
+async function load(cursor = "") {
   const searchURL =
+    PROXY +
     "https://catalog.roblox.com/v1/search/items?" +
     "Category=3" +
     "&AssetTypes=Shirt,Pants" +
@@ -16,12 +19,11 @@ async function loadClothing(cursor = "") {
   const searchRes = await fetch(searchURL);
   const searchData = await searchRes.json();
 
-  const ids = searchData.data.map(item => item.id);
+  const ids = searchData.data.map(i => i.id);
   if (ids.length === 0) return;
 
-  // STEP 2 — Get item DETAILS
   const detailsRes = await fetch(
-    "https://catalog.roblox.com/v1/catalog/items/details",
+    PROXY + "https://catalog.roblox.com/v1/catalog/items/details",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -33,7 +35,6 @@ async function loadClothing(cursor = "") {
 
   const detailsData = await detailsRes.json();
 
-  // STEP 3 — Render
   detailsData.data.forEach(item => {
     const card = document.createElement("a");
     card.className = "card";
@@ -49,10 +50,9 @@ async function loadClothing(cursor = "") {
     store.appendChild(card);
   });
 
-  // STEP 4 — Next page
   if (searchData.nextPageCursor) {
-    loadClothing(searchData.nextPageCursor);
+    load(searchData.nextPageCursor);
   }
 }
 
-loadClothing();
+load();
