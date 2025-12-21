@@ -1,7 +1,6 @@
 const GROUP_ID = 319199393;
 const store = document.getElementById("store");
 
-// Your Cloudflare Worker URL
 const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/";
 
 async function loadClothing(cursor = "") {
@@ -28,8 +27,10 @@ async function loadClothing(cursor = "") {
     searchData.data.forEach(item => {
       const id = item.id;
       const name = item.name || "Untitled";
-      const price = item.priceInRobux || "0"; // fallback
-      const imageUrl = `https://t0.rbxcdn.com/${id}`; // Roblox default thumbnail fallback
+      const price = item.priceInRobux || "0";
+
+      // Use product.assetId if exists, otherwise fallback to item.id
+      const assetId = item.product?.assetId || id;
 
       const card = document.createElement("a");
       card.className = "card";
@@ -37,7 +38,7 @@ async function loadClothing(cursor = "") {
       card.target = "_blank";
 
       card.innerHTML = `
-        <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${id}&size=420x420&format=Png" alt="${name}">
+        <img src="https://thumbnails.roblox.com/v1/assets?assetIds=${assetId}&size=420x420&format=Png" alt="${name}">
         <p>${name}</p>
         <div class="price">${price} R$</div>
       `;
