@@ -4,12 +4,12 @@ const store = document.getElementById("store");
 // Cloudflare Worker URL
 const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/";
 
-// Replace with your surreal placeholder image
+// Placeholder image for items that fail
 const PLACEHOLDER_IMAGE = "placeholder.png";
 
 async function loadClothing(cursor = "") {
   try {
-    // Build the search URL
+    // Build search URL
     const searchURL =
       WORKER_URL +
       "?url=" +
@@ -32,11 +32,11 @@ async function loadClothing(cursor = "") {
     searchData.data.forEach(item => {
       const id = item.id;
       const name = item.name || "Untitled";
-      const price = item.priceInRobux || 0;
+      const price = item.priceInRobux || "7"; // default 7$ if API returns 0
 
-      // Use product.assetId if available, otherwise fallback to item.id
+      // Use product.assetId if available
       const assetId = item.product?.assetId || id;
-      const thumbUrl = `https://www.roblox.com/asset-thumbnail/image?assetId=${assetId}&width=420&height=420`;
+      const thumbUrl = `https://thumbnails.roblox.com/v1/assets?assetIds=${assetId}&size=420x420&format=Png`;
 
       const card = document.createElement("a");
       card.className = "card";
@@ -61,5 +61,5 @@ async function loadClothing(cursor = "") {
   }
 }
 
-// Start loading clothing
+// Start loading
 loadClothing();
