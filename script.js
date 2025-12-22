@@ -82,16 +82,28 @@ async function loadAll(cursor=""){
 loadAll().catch(err=>console.error("LOAD FAILED:",err));
 
 // ----------------------------
-// MUSIC CONTROL
+// MUSIC CONTROL FIXED
 // ----------------------------
-const music=document.getElementById("bg-music");
-const volumeSlider=document.getElementById("volume-slider");
-const musicBtn=document.getElementById("music-toggle");
-music.volume=volumeSlider.value;
-volumeSlider.addEventListener("input", e=>music.volume=e.target.value);
-musicBtn.addEventListener("click", ()=>{
-  if(music.paused){ music.play(); musicBtn.textContent="🔊"; }
-  else{ music.pause(); musicBtn.textContent="🔈"; }
+const music = document.getElementById("bg-music");
+const volumeSlider = document.getElementById("volume-slider");
+const musicBtn = document.getElementById("music-toggle");
+
+// Play music automatically if allowed
+window.addEventListener("click", () => {
+  if(music.paused) music.play().catch(()=>{});
+}, { once:true });
+
+music.volume = parseFloat(volumeSlider.value);
+volumeSlider.addEventListener("input", e => music.volume = parseFloat(e.target.value));
+
+musicBtn.addEventListener("click", () => {
+  if (music.paused) {
+    music.play().catch(()=>{});
+    musicBtn.textContent = "🔊";
+  } else {
+    music.pause();
+    musicBtn.textContent = "🔈";
+  }
 });
 
 // ----------------------------
@@ -107,11 +119,7 @@ class Particle{
 }
 const particlesArray=[];
 for(let i=0;i<150;i++) particlesArray.push(new Particle());
-function animateParticles(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  particlesArray.forEach(p=>{ p.update(); p.draw(); });
-  requestAnimationFrame(animateParticles);
-}
+function animateParticles(){ ctx.clearRect(0,0,canvas.width,canvas.height); particlesArray.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animateParticles); }
 animateParticles();
 
 // ----------------------------
@@ -119,7 +127,7 @@ animateParticles();
 // ----------------------------
 const observer=new IntersectionObserver((entries)=>{
   entries.forEach(entry=>{
-    if(entry.isIntersecting){ entry.target.classList.add("show"); }
+    if(entry.isIntersecting) entry.target.classList.add("show");
   });
 },{threshold:0.1});
 document.querySelectorAll(".card").forEach(c=>observer.observe(c));
