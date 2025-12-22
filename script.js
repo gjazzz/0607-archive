@@ -82,29 +82,33 @@ async function loadAll(cursor=""){
 loadAll().catch(err=>console.error("LOAD FAILED:",err));
 
 // ----------------------------
-// MUSIC CONTROL FIXED
+// MUSIC CONTROL
 // ----------------------------
-const music = document.getElementById("bg-music");
-const volumeSlider = document.getElementById("volume-slider");
-const musicBtn = document.getElementById("music-toggle");
+const music = document.getElementById("bg-music");         // matches <audio id="bg-music">
+const volumeSlider = document.getElementById("volume-slider"); // matches <input id="volume-slider">
+const musicBtn = document.getElementById("music-toggle");  // matches <button id="music-toggle">
 
-// Play music automatically if allowed
-window.addEventListener("click", () => {
-  if(music.paused) music.play().catch(()=>{});
-}, { once:true });
+// Set initial volume
+music.volume = volumeSlider.value;
 
-music.volume = parseFloat(volumeSlider.value);
-volumeSlider.addEventListener("input", e => music.volume = parseFloat(e.target.value));
-
+// Play/pause toggle
 musicBtn.addEventListener("click", () => {
   if (music.paused) {
-    music.play().catch(()=>{});
+    music.play().catch(() => {
+      console.log("User interaction required to play audio.");
+    });
     musicBtn.textContent = "🔊";
   } else {
     music.pause();
     musicBtn.textContent = "🔈";
   }
 });
+
+// Volume slider control
+volumeSlider.addEventListener("input", (e) => {
+  music.volume = e.target.value;
+});
+
 
 // ----------------------------
 // PARTICLES
