@@ -1,41 +1,47 @@
-body {
+/* RESET */
+* {
   margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: serif;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+/* BODY */
+body {
+  min-height: 100vh;
+  font-family: 'Orbitron', sans-serif;
+  color: white;
+  background: url("background.jpg") center / cover no-repeat fixed;
+  overflow-x: hidden;
+}
+
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(5px);
+  z-index: -1;
+}
+
+/* HEADER */
 header {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px 30px;
 }
 
+header h1 {
+  font-size: 3rem;
+  letter-spacing: 6px;
+  text-shadow: 0 0 15px rgba(0,255,255,0.6);
+}
+
+header p {
+  margin-top: 12px;
+  opacity: 0.8;
+  font-size: 0.9rem;
+}
+
+/* STORE GRID (EMPTY FOR NOW) */
 #store {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 40px;
   padding: 40px;
-}
-
-.card {
-  text-decoration: none;
-  color: white;
-  background: radial-gradient(circle, #111 0%, #000 70%);
-  padding: 30px;
-  border: 1px solid rgba(255,255,255,0.05);
-  transition: transform 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-.card img {
-  width: 100%;
-  display: block;
-}
-
-.price {
-  margin-top: 10px;
-  opacity: 0.85;
 }
