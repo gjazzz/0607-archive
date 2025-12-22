@@ -12,6 +12,7 @@ body {
   background: url("background.jpg") center/cover fixed no-repeat;
   color: white;
   overflow-x: hidden;
+  position: relative;
 }
 
 /* DARK OVERLAY FOR SURREAL EFFECT */
@@ -20,13 +21,26 @@ body {
   inset: 0;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(3px);
-  z-index: -1;
+  z-index: 1;
+}
+
+/* PARTICLE CANVAS */
+#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 999; /* above everything */
+  pointer-events: none;
 }
 
 /* HEADER */
 header {
   text-align: center;
   padding: 40px 20px;
+  z-index: 2;
+  position: relative;
 }
 
 header h1 {
@@ -68,9 +82,11 @@ header p {
 #store {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 30px; /* spacing horizontally & vertically */
+  gap: 30px;
   padding: 40px;
-  perspective: 1000px; /* for 3D hover effect */
+  perspective: 1000px;
+  position: relative;
+  z-index: 2;
 }
 
 /* CARD STYLING */
@@ -99,9 +115,9 @@ header p {
   margin-bottom: 5px;
 }
 
-/* CARD 3D HOVER */
+/* CARD 3D HOVER REDUCED */
 .card:hover {
-  transform: rotateX(10deg) rotateY(10deg) scale(1.05);
+  transform: rotateX(5deg) rotateY(5deg) scale(1.03);
   box-shadow: 0 0 25px rgba(255,255,255,0.3);
 }
 
