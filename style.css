@@ -1,48 +1,41 @@
 body {
   margin: 0;
-  font-family: 'Arial', sans-serif;
-  background: url('your-background.jpg') center/cover no-repeat;
-  color: white;
+  background: #000;
+  color: #fff;
+  font-family: serif;
 }
 
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  pointer-events: none;
-}
-
-header, footer {
+header {
   text-align: center;
-  padding: 1rem;
+  padding: 40px 20px;
 }
 
 #store {
   display: grid;
-  grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
-  gap: 1rem;
-  padding: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 40px;
+  padding: 40px;
 }
 
 .card {
-  background: rgba(255,255,255,0.1);
-  border-radius: 10px;
-  text-align: center;
   text-decoration: none;
   color: white;
-  transition: transform 0.2s;
+  background: radial-gradient(circle, #111 0%, #000 70%);
+  padding: 30px;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: transform 0.2s ease;
 }
 
 .card:hover {
-  transform: scale(1.05);
+  transform: translateY(-4px);
 }
 
 .card img {
   width: 100%;
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  display: block;
 }
 
-.card p, .card .price {
-  margin: 0.5rem 0;
+.price {
+  margin-top: 10px;
+  opacity: 0.85;
 }
