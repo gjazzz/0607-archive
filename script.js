@@ -1,11 +1,11 @@
 const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
 
-// ✅ YOUR REAL CLOUDFLARE WORKER
+// ✅ REAL CLOUDFLARE WORKER
 const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
 // ----------------------------
-// 1️⃣ FETCH ALL GROUP CLOTHING
+// 1️⃣ FETCH CLOTHING
 // ----------------------------
 async function fetchClothing(cursor = "") {
   const url =
@@ -25,12 +25,11 @@ async function fetchClothing(cursor = "") {
   const res = await fetch(url);
   if (!res.ok) throw new Error("Catalog fetch failed");
 
-  const data = await res.json();
-  return data;
+  return await res.json();
 }
 
 // ----------------------------
-// 2️⃣ FETCH REAL THUMBNAILS
+// 2️⃣ FETCH THUMBNAILS
 // ----------------------------
 async function fetchThumbnails(ids) {
   const url =
@@ -112,25 +111,28 @@ function apply3DTilt() {
 }
 
 // ----------------------------
-// 5️⃣ BACKGROUND MUSIC TOGGLE
+// 5️⃣ MUSIC CONTROLS
 // ----------------------------
 const music = document.getElementById("bg-music");
 const musicToggle = document.getElementById("music-toggle");
+const musicVolume = document.getElementById("music-volume");
 
+// Play/Pause
 musicToggle.addEventListener("click", () => {
-  if (music.paused) {
-    music.play();
-  } else {
-    music.pause();
-  }
+  if (music.paused) music.play();
+  else music.pause();
+});
+
+// Volume Slider
+musicVolume.addEventListener("input", () => {
+  music.volume = musicVolume.value;
 });
 
 // ----------------------------
-// 6️⃣ MASTER LOAD (RECURSIVE)
+// 6️⃣ MASTER LOAD
 // ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
-
   const ids = data.data.map(i => i.id);
   if (!ids.length) return;
 
@@ -140,12 +142,9 @@ async function loadAll(cursor = "") {
   if (data.nextPageCursor) {
     await loadAll(data.nextPageCursor);
   } else {
-    // ✅ ONLY APPLY TILT AFTER EVERYTHING EXISTS
     apply3DTilt();
   }
 }
 
 // 🚀 START
-loadAll().catch(err => {
-  console.error("LOAD FAILED:", err);
-});
+loadAll().catch(err => console.error("LOAD FAILED:", err));
