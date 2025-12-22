@@ -14,7 +14,7 @@ body {
   overflow-x: hidden;
 }
 
-/* DARK OVERLAY */
+/* DARK OVERLAY FOR SURREAL EFFECT */
 .overlay {
   position: fixed;
   inset: 0;
@@ -48,32 +48,32 @@ header p {
   position: fixed;
   top: 20px;
   right: 20px;
+  padding: 10px 20px;
   background: rgba(255,255,255,0.08);
   color: white;
   text-decoration: none;
-  padding: 12px 18px;
-  border-radius: 12px;
+  border-radius: 10px;
   font-weight: bold;
-  font-family: 'Orbitron', sans-serif;
-  transition: transform 0.25s, box-shadow 0.25s;
-  z-index: 1000;
+  letter-spacing: 1px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  z-index: 10;
 }
 
 .group-btn:hover {
-  transform: rotateX(10deg) rotateY(10deg) scale(1.05);
-  box-shadow: 0 0 20px rgba(255,255,255,0.3);
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
 
 /* STORE GRID */
 #store {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 40px;
+  gap: 30px; /* spacing horizontally & vertically */
   padding: 40px;
-  perspective: 1200px;
+  perspective: 1000px; /* for 3D hover effect */
 }
 
-/* CARD */
+/* CARD STYLING */
 .card {
   background: rgba(255,255,255,0.08);
   border-radius: 14px;
@@ -94,9 +94,9 @@ header p {
 .card p, .card .price {
   text-align: center;
   font-weight: bold;
+  text-shadow: 0 0 8px #fff, 0 0 16px #fff;
   color: white;
   margin-bottom: 5px;
-  text-shadow: 0 0 8px #fff, 0 0 16px #fff;
 }
 
 /* CARD 3D HOVER */
@@ -105,11 +105,25 @@ header p {
   box-shadow: 0 0 25px rgba(255,255,255,0.3);
 }
 
-/* MUSIC TOGGLE BUTTON */
-#music-toggle {
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 25px;
+  opacity: 0.6;
+}
+
+/* MUSIC CONTROLS */
+.music-controls {
   position: fixed;
   top: 20px;
   left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+}
+
+#music-toggle {
   background: rgba(255,255,255,0.1);
   color: white;
   border: 2px solid white;
@@ -117,7 +131,6 @@ header p {
   padding: 8px 12px;
   cursor: pointer;
   font-weight: bold;
-  z-index: 1000;
   transition: 0.2s;
 }
 
@@ -126,9 +139,34 @@ header p {
   transform: scale(1.1);
 }
 
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 25px;
-  opacity: 0.6;
+#music-volume {
+  width: 120px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  background: rgba(255,255,255,0.2);
+  height: 6px;
+  border-radius: 3px;
+  transition: background 0.2s;
+}
+
+#music-volume:hover {
+  background: rgba(255,255,255,0.4);
+}
+
+#music-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#music-volume::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
 }
