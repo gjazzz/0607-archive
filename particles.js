@@ -1,11 +1,13 @@
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
+
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const drops = [];
 const dropCount = 120;
 
+// Initialize drops
 for (let i = 0; i < dropCount; i++) {
   drops.push({
     x: Math.random() * canvas.width,
@@ -15,6 +17,7 @@ for (let i = 0; i < dropCount; i++) {
   });
 }
 
+// Animation loop
 function animate() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
