@@ -78,7 +78,7 @@ function renderCards(items, thumbnails) {
 }
 
 // ----------------------------
-// 4️⃣ 3D CURSOR TILT (REAL)
+// 4️⃣ 3D CURSOR TILT
 // ----------------------------
 function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
@@ -112,7 +112,21 @@ function apply3DTilt() {
 }
 
 // ----------------------------
-// 5️⃣ MASTER LOAD (RECURSIVE)
+// 5️⃣ BACKGROUND MUSIC TOGGLE
+// ----------------------------
+const music = document.getElementById("bg-music");
+const musicToggle = document.getElementById("music-toggle");
+
+musicToggle.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+});
+
+// ----------------------------
+// 6️⃣ MASTER LOAD (RECURSIVE)
 // ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
