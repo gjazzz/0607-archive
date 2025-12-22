@@ -1,8 +1,8 @@
 const GROUP_ID = 319199393;
 const store = document.getElementById("store");
 
-// Your Cloudflare Worker URL (replace with your actual Worker URL)
-const WORKER_URL = "https://my-roblox-proxy.workers.dev/?url=";
+// ✅ Your actual Cloudflare Worker URL
+const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/?url=";
 
 // Fetch clothing from Roblox via Worker
 async function loadClothing(cursor = "") {
