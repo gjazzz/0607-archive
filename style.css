@@ -8,23 +8,24 @@
 }
 
 body {
-  background: radial-gradient(circle at top, #0a0a0a, #000);
-  font-family: "Inter", system-ui, sans-serif;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 10%, #111 0%, #000 40%),
+    radial-gradient(circle at 80% 90%, #0a0a0a 0%, #000 50%);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   color: white;
   overflow-x: hidden;
 }
 
 /* ----------------------------
-   STORE GRID (FIXED)
+   STORE GRID (FIXED + SAFE)
 ----------------------------- */
 #store {
   display: grid;
-
-  /* ✅ RESPONSIVE GRID */
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 
-  /* ✅ CRITICAL FIX */
-  gap: 48px;                 /* SPACE BETWEEN CARDS */
+  /* ✅ SPACING FIX */
+  gap: 48px;
   padding: 60px;
 
   justify-items: center;
@@ -38,8 +39,10 @@ body {
   width: 260px;
   height: 360px;
 
-  background: rgba(20, 20, 20, 0.75);
-  border-radius: 18px;
+  background: rgba(18, 18, 18, 0.85);
+  backdrop-filter: blur(10px);
+
+  border-radius: 20px;
 
   text-decoration: none;
   color: white;
@@ -50,7 +53,6 @@ body {
 
   padding: 14px;
 
-  /* ✅ ALLOW 3D */
   transform-style: preserve-3d;
   transition:
     transform 0.25s ease,
@@ -65,9 +67,9 @@ body {
 .card img {
   width: 100%;
   height: 260px;
-
   object-fit: cover;
-  border-radius: 14px;
+
+  border-radius: 16px;
 
   pointer-events: none;
 }
@@ -80,9 +82,9 @@ body {
   font-size: 15px;
   font-weight: 500;
 
-  color: white;
+  color: #fff;
   text-shadow:
-    0 0 6px rgba(255,255,255,0.5);
+    0 0 6px rgba(255,255,255,0.55);
 }
 
 /* ----------------------------
@@ -93,14 +95,14 @@ body {
   font-size: 14px;
   font-weight: 600;
 
-  color: white;
+  color: #fff;
   text-shadow:
-    0 0 8px rgba(255,255,255,0.7);
+    0 0 10px rgba(255,255,255,0.75);
 }
 
 /* ----------------------------
-   HOVER SAFE ZONE
+   HOVER DEPTH SAFE ZONE
 ----------------------------- */
 .card:hover {
-  z-index: 10; /* ✅ FLOAT ABOVE OTHERS */
+  z-index: 10;
 }
