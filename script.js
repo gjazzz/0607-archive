@@ -1,42 +1,52 @@
 const GROUP_ID = 319199393;
 const store = document.getElementById("store");
 
-// Your Cloudflare Worker URL (add trailing ?url=)
+// Your Cloudflare Worker URL
 const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/?url=";
 
+// Fetch all clothing (shirts + pants), handling pagination
 async function loadClothing(cursor = "") {
   try {
-    // Step 1 — Get all clothing items (shirts + pants)
-    let apiURL = `https://catalog.roblox.com/v1/search/items?Category=3&AssetTypes=Shirt,Pants&CreatorType=Group&CreatorTargetId=${GROUP_ID}&SalesTypeFilter=1&Limit=30`;
-    if (cursor) apiURL += `&Cursor=${cursor}`;
+    // Step 1 — Fetch group clothing IDs
+    const searchURL =
+      `https://catalog.roblox.com/v1/search/items?Category=3&AssetTypes=Shirt,Pants&CreatorType=Group&CreatorTargetId=${GROUP_ID}&SalesTypeFilter=1&Limit=30` +
+      (cursor ? `&Cursor=${cursor}` : "");
 
-    const res = await fetch(WORKER_URL + encodeURIComponent(apiURL));
-    const data = await res.json();
-    if (!data.data || !data.data.length) return;
+    const searchRes = await fetch(WORKER_URL + encodeURIComponent(searchURL));
+    const searchData = await searchRes.json();
 
-    // Step 2 — Render items
-    data.data.forEach(item => {
+    if (!searchData.data || !searchData.data.length) return;
+
+    // Step 2 — For each item, get the real thumbnail
+    for (const item of searchData.data) {
+      const thumbAPI = `https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png&type=Asset`;
+      const thumbRes = await fetch(WORKER_URL + encodeURIComponent(thumbAPI));
+      const thumbData = await thumbRes.json();
+      const imageUrl = thumbData.data[0]?.imageUrl || "";
+
+      // Step 3 — Render card
       const card = document.createElement("a");
       card.className = "card";
       card.href = `https://www.roblox.com/catalog/${item.id}`;
       card.target = "_blank";
 
-      // Thumbnail via Worker
-      const thumbURL = `https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png&type=Asset`;
       card.innerHTML = `
-        <img src="${WORKER_URL + encodeURIComponent(thumbURL)}" />
+        <img src="${imageUrl}" />
         <p>Unique Piece</p>
         <div class="price">7 R$</div>
       `;
-      store.appendChild(card);
-    });
 
-    // Step 3 — Load next page recursively
-    if (data.nextPageCursor) loadClothing(data.nextPageCursor);
+      store.appendChild(card);
+    }
+
+    // Step 4 — Load next page if exists
+    if (searchData.nextPageCursor) {
+      loadClothing(searchData.nextPageCursor);
+    }
   } catch (err) {
     console.error("Load failed:", err);
   }
 }
 
-// Start loading
+// Start loading all clothing
 loadClothing();
