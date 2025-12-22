@@ -1,52 +1,137 @@
 const GROUP_ID = 319199393;
-const store = document.getElementById("store");
+const STORE = document.getElementById("store");
 
-// Your Cloudflare Worker URL
-const WORKER_URL = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/?url=";
+// ✅ YOUR REAL CLOUDFLARE WORKER
+const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
-// Fetch all clothing (shirts + pants), handling pagination
-async function loadClothing(cursor = "") {
-  try {
-    // Step 1 — Fetch group clothing IDs
-    const searchURL =
-      `https://catalog.roblox.com/v1/search/items?Category=3&AssetTypes=Shirt,Pants&CreatorType=Group&CreatorTargetId=${GROUP_ID}&SalesTypeFilter=1&Limit=30` +
-      (cursor ? `&Cursor=${cursor}` : "");
+// ----------------------------
+// 1️⃣ FETCH ALL GROUP CLOTHING
+// ----------------------------
+async function fetchClothing(cursor = "") {
+  const url =
+    WORKER +
+    "?url=" +
+    encodeURIComponent(
+      "https://catalog.roblox.com/v1/search/items?" +
+        "Category=3" +
+        "&AssetTypes=Shirt,Pants" +
+        "&CreatorType=Group" +
+        `&CreatorTargetId=${GROUP_ID}` +
+        "&SalesTypeFilter=1" +
+        "&Limit=30" +
+        (cursor ? `&Cursor=${cursor}` : "")
+    );
 
-    const searchRes = await fetch(WORKER_URL + encodeURIComponent(searchURL));
-    const searchData = await searchRes.json();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Catalog fetch failed");
 
-    if (!searchData.data || !searchData.data.length) return;
+  const data = await res.json();
+  return data;
+}
 
-    // Step 2 — For each item, get the real thumbnail
-    for (const item of searchData.data) {
-      const thumbAPI = `https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png&type=Asset`;
-      const thumbRes = await fetch(WORKER_URL + encodeURIComponent(thumbAPI));
-      const thumbData = await thumbRes.json();
-      const imageUrl = thumbData.data[0]?.imageUrl || "";
+// ----------------------------
+// 2️⃣ FETCH REAL THUMBNAILS
+// ----------------------------
+async function fetchThumbnails(ids) {
+  const url =
+    WORKER +
+    "?url=" +
+    encodeURIComponent(
+      "https://thumbnails.roblox.com/v1/assets?" +
+        `assetIds=${ids.join(",")}` +
+        "&size=420x420" +
+        "&format=Png"
+    );
 
-      // Step 3 — Render card
-      const card = document.createElement("a");
-      card.className = "card";
-      card.href = `https://www.roblox.com/catalog/${item.id}`;
-      card.target = "_blank";
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Thumbnail fetch failed");
 
-      card.innerHTML = `
-        <img src="${imageUrl}" />
-        <p>Unique Piece</p>
-        <div class="price">7 R$</div>
-      `;
+  const data = await res.json();
+  return data.data;
+}
 
-      store.appendChild(card);
+// ----------------------------
+// 3️⃣ RENDER CARDS
+// ----------------------------
+function renderCards(items, thumbnails) {
+  const thumbMap = {};
+  thumbnails.forEach(t => {
+    if (t.state === "Completed") {
+      thumbMap[t.targetId] = t.imageUrl;
     }
+  });
 
-    // Step 4 — Load next page if exists
-    if (searchData.nextPageCursor) {
-      loadClothing(searchData.nextPageCursor);
-    }
-  } catch (err) {
-    console.error("Load failed:", err);
+  items.forEach(item => {
+    const card = document.createElement("a");
+    card.className = "card";
+    card.href = `https://www.roblox.com/catalog/${item.id}`;
+    card.target = "_blank";
+
+    card.innerHTML = `
+      <img src="${thumbMap[item.id]}" alt="">
+      <p>Unique Piece</p>
+      <div class="price">7 R$</div>
+    `;
+
+    STORE.appendChild(card);
+  });
+}
+
+// ----------------------------
+// 4️⃣ 3D CURSOR TILT (REAL)
+// ----------------------------
+function apply3DTilt() {
+  const cards = document.querySelectorAll(".card");
+
+  cards.forEach(card => {
+    card.addEventListener("mousemove", e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+
+      const rotateX = ((y - centerY) / centerY) * -12;
+      const rotateY = ((x - centerX) / centerX) * 12;
+
+      card.style.transform =
+        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+
+      card.style.boxShadow =
+        "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,255,0.4)";
+    });
+
+    card.addEventListener("mouseleave", () => {
+      card.style.transform =
+        "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+      card.style.boxShadow =
+        "0 10px 25px rgba(0,0,0,0.4)";
+    });
+  });
+}
+
+// ----------------------------
+// 5️⃣ MASTER LOAD (RECURSIVE)
+// ----------------------------
+async function loadAll(cursor = "") {
+  const data = await fetchClothing(cursor);
+
+  const ids = data.data.map(i => i.id);
+  if (!ids.length) return;
+
+  const thumbnails = await fetchThumbnails(ids);
+  renderCards(data.data, thumbnails);
+
+  if (data.nextPageCursor) {
+    await loadAll(data.nextPageCursor);
+  } else {
+    // ✅ ONLY APPLY TILT AFTER EVERYTHING EXISTS
+    apply3DTilt();
   }
 }
 
-// Start loading all clothing
-loadClothing();
+// 🚀 START
+loadAll().catch(err => {
+  console.error("LOAD FAILED:", err);
+});
