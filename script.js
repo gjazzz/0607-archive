@@ -1,11 +1,9 @@
 const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
-
-// ✅ YOUR REAL CLOUDFLARE WORKER
 const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
 // ----------------------------
-// 1️⃣ FETCH ALL GROUP CLOTHING
+// 1️⃣ FETCH GROUP CLOTHING
 // ----------------------------
 async function fetchClothing(cursor = "") {
   const url =
@@ -24,13 +22,11 @@ async function fetchClothing(cursor = "") {
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Catalog fetch failed");
-
-  const data = await res.json();
-  return data;
+  return await res.json();
 }
 
 // ----------------------------
-// 2️⃣ FETCH REAL THUMBNAILS
+// 2️⃣ FETCH THUMBNAILS
 // ----------------------------
 async function fetchThumbnails(ids) {
   const url =
@@ -45,9 +41,7 @@ async function fetchThumbnails(ids) {
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Thumbnail fetch failed");
-
-  const data = await res.json();
-  return data.data;
+  return (await res.json()).data;
 }
 
 // ----------------------------
@@ -56,9 +50,7 @@ async function fetchThumbnails(ids) {
 function renderCards(items, thumbnails) {
   const thumbMap = {};
   thumbnails.forEach(t => {
-    if (t.state === "Completed") {
-      thumbMap[t.targetId] = t.imageUrl;
-    }
+    if (t.state === "Completed") thumbMap[t.targetId] = t.imageUrl;
   });
 
   items.forEach(item => {
@@ -68,7 +60,7 @@ function renderCards(items, thumbnails) {
     card.target = "_blank";
 
     card.innerHTML = `
-      <img src="${thumbMap[item.id]}" alt="">
+      <img src="${thumbMap[item.id] || 'fallback.jpg'}" alt="">
       <p>Unique Piece</p>
       <div class="price">7 R$</div>
     `;
@@ -78,79 +70,55 @@ function renderCards(items, thumbnails) {
 }
 
 // ----------------------------
-// 4️⃣ 3D CURSOR TILT (REDUCED)
+// 4️⃣ 3D CURSOR TILT
 // ----------------------------
 function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
-
   cards.forEach(card => {
     card.addEventListener("mousemove", e => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      const rotateX = ((y - centerY) / centerY) * -5; // reduced tilt
-      const rotateY = ((x - centerX) / centerX) * 5;
+      const rotateX = ((y - centerY) / centerY) * -6;
+      const rotateY = ((x - centerX) / centerX) * 6;
 
-      card.style.transform =
-        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-
-      card.style.boxShadow =
-        "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,255,0.4)";
+      card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+      card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,255,0.4)";
     });
 
     card.addEventListener("mouseleave", () => {
-      card.style.transform =
-        "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+      card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
       card.style.boxShadow = "0 10px 25px rgba(0,0,0,0.4)";
     });
   });
 }
 
 // ----------------------------
-// 5️⃣ MASTER LOAD (RECURSIVE)
+// 5️⃣ LOAD ALL CLOTHING
 // ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
-
   const ids = data.data.map(i => i.id);
   if (!ids.length) return;
 
   const thumbnails = await fetchThumbnails(ids);
   renderCards(data.data, thumbnails);
 
-  if (data.nextPageCursor) {
-    await loadAll(data.nextPageCursor);
-  } else {
-    apply3DTilt(); // ✅ only after all cards exist
-  }
+  if (data.nextPageCursor) await loadAll(data.nextPageCursor);
+  else apply3DTilt();
 }
 
 // ----------------------------
-// 6️⃣ MUSIC CONTROLS
+// 6️⃣ BACKGROUND MUSIC VOLUME
 // ----------------------------
-const music = document.getElementById("bg-music");
-const volumeSlider = document.getElementById("music-volume");
-const toggleBtn = document.getElementById("music-toggle");
-
-volumeSlider.addEventListener("input", () => {
-  music.volume = volumeSlider.value;
-});
-
-toggleBtn.addEventListener("click", () => {
-  if (music.paused) {
-    music.play();
-    toggleBtn.textContent = "🔊";
-  } else {
-    music.pause();
-    toggleBtn.textContent = "🔈";
-  }
+const music = document.getElementById("bgMusic");
+const volumeSlider = document.getElementById("volume");
+volumeSlider.addEventListener("input", e => {
+  music.volume = e.target.value;
 });
 
 // 🚀 START
-loadAll().catch(err => {
-  console.error("LOAD FAILED:", err);
-});
+loadAll().catch(console.error);
