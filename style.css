@@ -12,27 +12,41 @@ body {
   background: url("background.jpg") center/cover fixed no-repeat;
   color: white;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* DARK OVERLAY FOR SURRREAL EFFECT */
+/* OVERLAY */
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(3px);
-  z-index: -1;
+  z-index: 1;
+}
+
+/* PARTICLES */
+#particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
 }
 
 /* HEADER */
 header {
   text-align: center;
   padding: 40px 20px;
+  z-index: 5;
+  position: relative;
 }
 
 header h1 {
   font-size: 3rem;
   letter-spacing: 3px;
-  text-shadow: 0 0 10px #fff, 0 0 20px #fff;
+  text-shadow: 0 0 10px #fff, 0 0 20px #0ff;
 }
 
 header p {
@@ -43,7 +57,7 @@ header p {
   text-shadow: 0 0 5px #fff;
 }
 
-/* ROBLOX GROUP BUTTON */
+/* GROUP BUTTON */
 .group-btn {
   position: fixed;
   top: 20px;
@@ -56,7 +70,7 @@ header p {
   font-weight: bold;
   letter-spacing: 1px;
   transition: transform 0.3s, box-shadow 0.3s;
-  z-index: 10;
+  z-index: 5;
 }
 
 .group-btn:hover {
@@ -68,9 +82,11 @@ header p {
 #store {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 30px; /* space between cards */
+  gap: 30px;
   padding: 40px;
-  perspective: 1000px; /* needed for 3D hover */
+  perspective: 1000px;
+  z-index: 3;
+  position: relative;
 }
 
 /* CARD STYLING */
@@ -94,34 +110,27 @@ header p {
 .card p, .card .price {
   text-align: center;
   font-weight: bold;
-  text-shadow: 0 0 8px #fff, 0 0 16px #fff;
+  text-shadow: 0 0 8px #0ff, 0 0 16px #0ff;
   color: white;
   margin-bottom: 5px;
 }
 
 /* CARD 3D HOVER */
 .card:hover {
-  transform: rotateX(8deg) rotateY(8deg) scale(1.03);
-  box-shadow: 0 0 25px rgba(255,255,255,0.3);
+  transform: rotateX(6deg) rotateY(6deg) scale(1.03);
+  box-shadow: 0 0 25px rgba(0,255,255,0.3);
 }
 
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 25px;
-  opacity: 0.6;
-}
-
-/* SOCIAL BUTTONS CONTAINER */
+/* SOCIAL BUTTONS */
 .social-buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
-  padding: 30px 0;
-  flex-wrap: wrap; /* keeps responsive */
+  margin: 40px 0;
+  z-index: 5;
+  position: relative;
 }
 
-/* SOCIAL BUTTONS */
 .social-btn {
   padding: 10px 20px;
   background: rgba(255,255,255,0.08);
@@ -131,10 +140,18 @@ footer {
   font-weight: bold;
   letter-spacing: 1px;
   transition: transform 0.3s, box-shadow 0.3s;
-  text-align: center;
 }
 
 .social-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 0 25px rgba(255,255,255,0.4);
+}
+
+/* VOLUME SLIDER */
+#volume {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
 }
