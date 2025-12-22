@@ -1,11 +1,11 @@
 const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
 
-// ✅ REAL CLOUDFLARE WORKER
+// ✅ YOUR REAL CLOUDFLARE WORKER
 const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
 // ----------------------------
-// 1️⃣ FETCH CLOTHING
+// 1️⃣ FETCH ALL GROUP CLOTHING
 // ----------------------------
 async function fetchClothing(cursor = "") {
   const url =
@@ -25,11 +25,12 @@ async function fetchClothing(cursor = "") {
   const res = await fetch(url);
   if (!res.ok) throw new Error("Catalog fetch failed");
 
-  return await res.json();
+  const data = await res.json();
+  return data;
 }
 
 // ----------------------------
-// 2️⃣ FETCH THUMBNAILS
+// 2️⃣ FETCH REAL THUMBNAILS
 // ----------------------------
 async function fetchThumbnails(ids) {
   const url =
@@ -77,7 +78,7 @@ function renderCards(items, thumbnails) {
 }
 
 // ----------------------------
-// 4️⃣ 3D CURSOR TILT
+// 4️⃣ 3D CURSOR TILT (REDUCED)
 // ----------------------------
 function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
@@ -91,11 +92,11 @@ function apply3DTilt() {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
 
-      const rotateX = ((y - centerY) / centerY) * -12;
-      const rotateY = ((x - centerX) / centerX) * 12;
+      const rotateX = ((y - centerY) / centerY) * -5; // reduced tilt
+      const rotateY = ((x - centerX) / centerX) * 5;
 
       card.style.transform =
-        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
 
       card.style.boxShadow =
         "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(0,255,255,0.4)";
@@ -104,35 +105,17 @@ function apply3DTilt() {
     card.addEventListener("mouseleave", () => {
       card.style.transform =
         "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
-      card.style.boxShadow =
-        "0 10px 25px rgba(0,0,0,0.4)";
+      card.style.boxShadow = "0 10px 25px rgba(0,0,0,0.4)";
     });
   });
 }
 
 // ----------------------------
-// 5️⃣ MUSIC CONTROLS
-// ----------------------------
-const music = document.getElementById("bg-music");
-const musicToggle = document.getElementById("music-toggle");
-const musicVolume = document.getElementById("music-volume");
-
-// Play/Pause
-musicToggle.addEventListener("click", () => {
-  if (music.paused) music.play();
-  else music.pause();
-});
-
-// Volume Slider
-musicVolume.addEventListener("input", () => {
-  music.volume = musicVolume.value;
-});
-
-// ----------------------------
-// 6️⃣ MASTER LOAD
+// 5️⃣ MASTER LOAD (RECURSIVE)
 // ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
+
   const ids = data.data.map(i => i.id);
   if (!ids.length) return;
 
@@ -142,9 +125,32 @@ async function loadAll(cursor = "") {
   if (data.nextPageCursor) {
     await loadAll(data.nextPageCursor);
   } else {
-    apply3DTilt();
+    apply3DTilt(); // ✅ only after all cards exist
   }
 }
 
+// ----------------------------
+// 6️⃣ MUSIC CONTROLS
+// ----------------------------
+const music = document.getElementById("bg-music");
+const volumeSlider = document.getElementById("music-volume");
+const toggleBtn = document.getElementById("music-toggle");
+
+volumeSlider.addEventListener("input", () => {
+  music.volume = volumeSlider.value;
+});
+
+toggleBtn.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+    toggleBtn.textContent = "🔊";
+  } else {
+    music.pause();
+    toggleBtn.textContent = "🔈";
+  }
+});
+
 // 🚀 START
-loadAll().catch(err => console.error("LOAD FAILED:", err));
+loadAll().catch(err => {
+  console.error("LOAD FAILED:", err);
+});
