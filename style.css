@@ -12,35 +12,21 @@ body {
   background: url("background.jpg") center/cover fixed no-repeat;
   color: white;
   overflow-x: hidden;
-  position: relative;
 }
 
-/* DARK OVERLAY FOR SURREAL EFFECT */
+/* DARK OVERLAY FOR SURRREAL EFFECT */
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.55);
   backdrop-filter: blur(3px);
-  z-index: 1;
-}
-
-/* PARTICLE CANVAS */
-#particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 999; /* above everything */
-  pointer-events: none;
+  z-index: -1;
 }
 
 /* HEADER */
 header {
   text-align: center;
   padding: 40px 20px;
-  z-index: 2;
-  position: relative;
 }
 
 header h1 {
@@ -82,11 +68,9 @@ header p {
 #store {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 30px;
+  gap: 30px; /* space between cards */
   padding: 40px;
-  perspective: 1000px;
-  position: relative;
-  z-index: 2;
+  perspective: 1000px; /* needed for 3D hover */
 }
 
 /* CARD STYLING */
@@ -115,9 +99,9 @@ header p {
   margin-bottom: 5px;
 }
 
-/* CARD 3D HOVER REDUCED */
+/* CARD 3D HOVER */
 .card:hover {
-  transform: rotateX(5deg) rotateY(5deg) scale(1.03);
+  transform: rotateX(8deg) rotateY(8deg) scale(1.03);
   box-shadow: 0 0 25px rgba(255,255,255,0.3);
 }
 
@@ -128,61 +112,29 @@ footer {
   opacity: 0.6;
 }
 
-/* MUSIC CONTROLS */
-.music-controls {
-  position: fixed;
-  top: 20px;
-  left: 20px;
+/* SOCIAL BUTTONS CONTAINER */
+.social-buttons {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 1000;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px 0;
+  flex-wrap: wrap; /* keeps responsive */
 }
 
-#music-toggle {
-  background: rgba(255,255,255,0.1);
+/* SOCIAL BUTTONS */
+.social-btn {
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.08);
   color: white;
-  border: 2px solid white;
+  text-decoration: none;
   border-radius: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
   font-weight: bold;
-  transition: 0.2s;
+  letter-spacing: 1px;
+  transition: transform 0.3s, box-shadow 0.3s;
+  text-align: center;
 }
 
-#music-toggle:hover {
-  background: rgba(255,255,255,0.3);
-  transform: scale(1.1);
-}
-
-#music-volume {
-  width: 120px;
-  cursor: pointer;
-  -webkit-appearance: none;
-  background: rgba(255,255,255,0.2);
-  height: 6px;
-  border-radius: 3px;
-  transition: background 0.2s;
-}
-
-#music-volume:hover {
-  background: rgba(255,255,255,0.4);
-}
-
-#music-volume::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#music-volume::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
-  background: white;
-  border-radius: 50%;
-  cursor: pointer;
+.social-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
