@@ -1,184 +1,39 @@
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>06:07 Archive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-/* BACKGROUND */
-body {
-  min-height: 100vh;
-  font-family: 'Orbitron', sans-serif;
-  background: url("background.jpg") center/cover fixed no-repeat;
-  color: white;
-  overflow-x: hidden;
-  opacity: 0;
-  transition: opacity 1.2s ease-in-out;
-}
+  <div class="overlay"></div>
 
-/* FADE IN PAGE */
-body.loaded {
-  opacity: 1;
-}
+  <!-- ROBLOX GROUP BUTTON -->
+  <a class="group-btn" href="https://www.roblox.com/communities/319199393/06-07#!/about" target="_blank">
+    ROBLOX GROUP
+  </a>
 
-/* OVERLAY */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(3px);
-  z-index: -1;
-}
+  <header>
+    <h1>06:07 ARCHIVE</h1>
+    <p>Unique pieces pulled from a broken timeline</p>
+  </header>
 
-/* HEADER */
-header {
-  text-align: center;
-  padding: 40px 20px;
-  opacity: 0;
-  transform: translateY(-30px);
-  transition: all 1s ease;
-}
-header.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-header h1 {
-  font-size: 3rem;
-  letter-spacing: 3px;
-  text-shadow: 0 0 10px #fff, 0 0 20px #fff;
-}
-header p {
-  max-width: 700px;
-  margin: 15px auto 0;
-  font-size: 1.2rem;
-  opacity: 0.85;
-  text-shadow: 0 0 5px #fff;
-}
+  <!-- Store Grid -->
+  <main id="store"></main>
 
-/* ROBLOX GROUP BUTTON TOP-RIGHT */
-.group-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  display: inline-block;
-  padding: 10px 20px;
-  margin: 5px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  z-index: 20;
-}
-.group-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(255,255,255,0.4);
-}
+  <!-- Social Buttons -->
+  <div class="social-btns">
+    <a href="https://www.youtube.com/@nonreturnpoint-z" target="_blank">YOUTUBE</a>
+    <a href="https://discord.gg/vEDM562BPK" target="_blank">DISCORD</a>
+    <a href="https://www.tiktok.com/@nonreturnpoint" target="_blank">TIKTOK</a>
+  </div>
 
-/* SOCIAL BUTTONS */
-.social-btns {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 30px 0;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 1s ease;
-}
-.social-btns.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-.social-btns a {
-  display: inline-block;
-  padding: 10px 20px;
-  margin: 5px;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  text-decoration: none;
-  border-radius: 10px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  transition: transform 0.3s, box-shadow 0.3s;
-  z-index: 10;
-}
-.social-btns a:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 25px rgba(255,255,255,0.4);
-}
+  <!-- Particles Container -->
+  <canvas id="particles"></canvas>
 
-/* MUSIC CONTROLS */
-.music-controls {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  z-index: 20;
-}
-#volume-slider {
-  width: 120px;
-}
-
-/* STORE GRID */
-#store {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 35px;
-  padding: 40px;
-  perspective: 1000px;
-}
-
-/* CARD */
-.card {
-  background: rgba(255,255,255,0.08);
-  border-radius: 14px;
-  padding: 10px;
-  text-decoration: none;
-  color: white;
-  transition: transform 0.3s, box-shadow 0.3s, opacity 0.6s;
-  transform-style: preserve-3d;
-  opacity: 0;
-  transform: translateY(30px);
-}
-.card.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-.card img {
-  width: 100%;
-  border-radius: 10px;
-  display: block;
-  margin-bottom: 8px;
-}
-.card p, .card .price {
-  text-align: center;
-  font-weight: bold;
-  text-shadow: 0 0 8px #fff, 0 0 16px #fff;
-  color: white;
-  margin-bottom: 5px;
-}
-
-/* CARD HOVER 3D TILT & GLOW */
-.card:hover {
-  transform: rotateX(6deg) rotateY(6deg) scale(1.03);
-  box-shadow: 0 0 25px rgba(0,255,255,0.3);
-}
-
-/* PARTICLES */
-#particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* FOOTER */
-footer {
-  text-align: center;
-  padding: 25px;
-  opacity: 0.6;
-}
+  <script src="script.js"></script>
+</body>
+</html>
