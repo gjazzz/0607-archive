@@ -1,99 +1,67 @@
+document.body.classList.add('loaded');
+
+// ----------------------------
+// ROBLOX STORE
+// ----------------------------
 const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
 const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
-// ----------------------------
-// FETCH CLOTHING
-// ----------------------------
 async function fetchClothing(cursor = "") {
-  const url =
-    WORKER +
-    "?url=" +
-    encodeURIComponent(
-      "https://catalog.roblox.com/v1/search/items?" +
-      "Category=3" +
-      "&AssetTypes=Shirt,Pants" +
-      "&CreatorType=Group" +
-      `&CreatorTargetId=${GROUP_ID}` +
-      "&SalesTypeFilter=1" +
-      "&Limit=30" +
-      (cursor ? `&Cursor=${cursor}` : "")
-    );
-
+  const url = WORKER + "?url=" + encodeURIComponent(
+    "https://catalog.roblox.com/v1/search/items?" +
+    "Category=3" +
+    "&AssetTypes=Shirt,Pants" +
+    "&CreatorType=Group" +
+    `&CreatorTargetId=${GROUP_ID}` +
+    "&SalesTypeFilter=1" +
+    "&Limit=30" +
+    (cursor ? `&Cursor=${cursor}` : "")
+  );
   const res = await fetch(url);
   if (!res.ok) throw new Error("Catalog fetch failed");
-
   return res.json();
 }
 
-// ----------------------------
-// FETCH THUMBNAILS
-// ----------------------------
 async function fetchThumbnails(ids) {
-  const url =
-    WORKER +
-    "?url=" +
-    encodeURIComponent(
-      "https://thumbnails.roblox.com/v1/assets?" +
-      `assetIds=${ids.join(",")}` +
-      "&size=420x420" +
-      "&format=Png"
-    );
-
+  const url = WORKER + "?url=" + encodeURIComponent(
+    "https://thumbnails.roblox.com/v1/assets?" +
+    `assetIds=${ids.join(",")}` +
+    "&size=420x420" +
+    "&format=Png"
+  );
   const res = await fetch(url);
   if (!res.ok) throw new Error("Thumbnail fetch failed");
-
   return (await res.json()).data;
 }
 
-// ----------------------------
-// RENDER CARDS
-// ----------------------------
 function renderCards(items, thumbnails) {
   const thumbMap = {};
-  thumbnails.forEach(t => {
-    if (t.state === "Completed") thumbMap[t.targetId] = t.imageUrl;
-  });
-
+  thumbnails.forEach(t => { if(t.state==="Completed") thumbMap[t.targetId]=t.imageUrl; });
   items.forEach(item => {
     const card = document.createElement("a");
     card.className = "card";
     card.href = `https://www.roblox.com/catalog/${item.id}`;
     card.target = "_blank";
-
-    card.innerHTML = `
-      <img src="${thumbMap[item.id]}" alt="">
-      <p>Unique Piece</p>
-      <div class="price">7 R$</div>
-    `;
-
+    card.innerHTML = `<img src="${thumbMap[item.id]}" alt=""><p>Unique Piece</p><div class="price">7 R$</div>`;
     STORE.appendChild(card);
   });
 }
 
-// ----------------------------
-// 3D TILT
-// ----------------------------
 function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
-
   cards.forEach(card => {
     card.addEventListener("mousemove", e => {
       const rect = card.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
-
-      const rotateX = ((y - centerY) / centerY) * -5;
-      const rotateY = ((x - centerX) / centerX) * 5;
-
-      card.style.transform =
-        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-      card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.4)";
+      const rotateX = ((y - centerY)/centerY)*-5;
+      const rotateY = ((x - centerX)/centerX)*5;
+      card.style.transform = `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+      card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.6),0 0 30px rgba(255,255,255,0.5)";
     });
-
     card.addEventListener("mouseleave", () => {
       card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
       card.style.boxShadow = "0 10px 25px rgba(0,0,0,0.4)";
@@ -101,104 +69,52 @@ function apply3DTilt() {
   });
 }
 
-// ----------------------------
-// LOAD ALL
-// ----------------------------
-async function loadAll(cursor = "") {
+async function loadAll(cursor="") {
   const data = await fetchClothing(cursor);
-  const ids = data.data.map(i => i.id);
-  if (!ids.length) return;
-
+  const ids = data.data.map(i=>i.id);
+  if(!ids.length) return;
   const thumbnails = await fetchThumbnails(ids);
   renderCards(data.data, thumbnails);
-
-  if (data.nextPageCursor) {
-    await loadAll(data.nextPageCursor);
-  } else {
-    apply3DTilt();
-  }
+  if(data.nextPageCursor) await loadAll(data.nextPageCursor);
+  else apply3DTilt();
 }
 
-loadAll().catch(err => console.error("LOAD FAILED:", err));
+loadAll().catch(err=>console.error("LOAD FAILED:", err));
 
 // ----------------------------
-// AUDIO CONTROL (works)
+// MUSIC CONTROLS
 // ----------------------------
 const music = document.getElementById("bgMusic");
 const volumeSlider = document.getElementById("volume");
 const musicBtn = document.getElementById("musicBtn");
-
-if (music) {
-  music.volume = volumeSlider.value;
-  musicBtn.addEventListener("click", () => {
-    if (music.paused) {
-      music.play();
-      musicBtn.textContent = "🔊";
-    } else {
-      music.pause();
-      musicBtn.textContent = "🔈";
-    }
-  });
-  volumeSlider.addEventListener("input", e => music.volume = e.target.value);
-}
+music.volume = volumeSlider.value;
+volumeSlider.addEventListener("input", e=>music.volume=e.target.value);
+musicBtn.addEventListener("click", ()=>{
+  if(music.paused){ music.play(); musicBtn.textContent="🔊"; }
+  else { music.pause(); musicBtn.textContent="🔈"; }
+});
 
 // ----------------------------
 // PARTICLES
 // ----------------------------
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
-canvas.width = innerWidth;
-canvas.height = innerHeight;
+canvas.width = innerWidth; canvas.height = innerHeight;
 
-let drops = [];
-for (let i = 0; i < 120; i++) {
-  drops.push({
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    length: Math.random() * 15 + 10,
-    speed: Math.random() * 2 + 2
-  });
+class Particle {
+  constructor(){ this.x=Math.random()*canvas.width; this.y=Math.random()*canvas.height; this.radius=Math.random()*2+1; this.speed=Math.random()*1+0.5; }
+  update(){ this.y -= this.speed; if(this.y<0) this.y=canvas.height; }
+  draw(){ ctx.fillStyle="rgba(255,255,255,0.5)"; ctx.beginPath(); ctx.arc(this.x,this.y,this.radius,0,Math.PI*2); ctx.fill(); }
 }
-
-function animateParticles() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.3)";
-  ctx.lineWidth = 2;
-
-  drops.forEach(d => {
-    ctx.beginPath();
-    ctx.moveTo(d.x, d.y);
-    ctx.lineTo(d.x, d.y + d.length);
-    ctx.stroke();
-    d.y += d.speed;
-    if (d.y > canvas.height) {
-      d.y = -d.length;
-      d.x = Math.random() * canvas.width;
-    }
-  });
-
-  requestAnimationFrame(animateParticles);
-}
-
+const particlesArray=[]; for(let i=0;i<150;i++) particlesArray.push(new Particle());
+function animateParticles(){ ctx.clearRect(0,0,canvas.width,canvas.height); particlesArray.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animateParticles);}
 animateParticles();
-window.addEventListener("resize", () => {
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-});
+window.addEventListener("resize",()=>{ canvas.width=innerWidth; canvas.height=innerHeight; });
 
 // ----------------------------
-// BACKGROUND PARALLAX (full X/Y)
-// ----------------------------
-let bgPos = {x: 50, y: 50};
-document.addEventListener("mousemove", e => {
-  const moveX = (e.clientX / window.innerWidth - 0.5) * 20; // +/-10%
-  const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
-  bgPos.x = 50 + moveX;
-  bgPos.y = 50 + moveY;
+// BACKGROUND PARALLAX (MOUSE)
+document.addEventListener('mousemove',e=>{
+  const moveX=(e.clientX/window.innerWidth-0.5)*20; // horizontal
+  const moveY=(e.clientY/window.innerHeight-0.5)*20; // vertical
+  document.body.style.backgroundPosition=`calc(50% + ${moveX}px) calc(50% + ${moveY}px)`;
 });
-
-function updateBackground() {
-  document.body.style.backgroundPosition = `${bgPos.x}% ${bgPos.y}%`;
-  requestAnimationFrame(updateBackground);
-}
-updateBackground();
