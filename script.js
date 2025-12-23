@@ -91,7 +91,6 @@ function apply3DTilt() {
 
       card.style.transform =
         `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-
       card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.4)";
     });
 
@@ -121,6 +120,27 @@ async function loadAll(cursor = "") {
 }
 
 loadAll().catch(err => console.error("LOAD FAILED:", err));
+
+// ----------------------------
+// AUDIO CONTROL (works)
+// ----------------------------
+const music = document.getElementById("bgMusic");
+const volumeSlider = document.getElementById("volume");
+const musicBtn = document.getElementById("musicBtn");
+
+if (music) {
+  music.volume = volumeSlider.value;
+  musicBtn.addEventListener("click", () => {
+    if (music.paused) {
+      music.play();
+      musicBtn.textContent = "🔊";
+    } else {
+      music.pause();
+      musicBtn.textContent = "🔈";
+    }
+  });
+  volumeSlider.addEventListener("input", e => music.volume = e.target.value);
+}
 
 // ----------------------------
 // PARTICLES
@@ -161,33 +181,24 @@ function animateParticles() {
 }
 
 animateParticles();
-
 window.addEventListener("resize", () => {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 });
 
 // ----------------------------
-// MOUSE BACKGROUND PARALLAX
+// BACKGROUND PARALLAX (full X/Y)
 // ----------------------------
-let mouseX = 0, mouseY = 0;
-let bgPosX = 50, bgPosY = 50;
-
+let bgPos = {x: 50, y: 50};
 document.addEventListener("mousemove", e => {
-  mouseX = e.clientX / window.innerWidth;
-  mouseY = e.clientY / window.innerHeight;
+  const moveX = (e.clientX / window.innerWidth - 0.5) * 20; // +/-10%
+  const moveY = (e.clientY / window.innerHeight - 0.5) * 20;
+  bgPos.x = 50 + moveX;
+  bgPos.y = 50 + moveY;
 });
 
-function animateBackground() {
-  const targetX = 50 + (mouseX - 0.5) * 10; // ±5%
-  const targetY = 50 + (mouseY - 0.5) * 10;
-
-  bgPosX += (targetX - bgPosX) * 0.08;
-  bgPosY += (targetY - bgPosY) * 0.08;
-
-  document.body.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
-
-  requestAnimationFrame(animateBackground);
+function updateBackground() {
+  document.body.style.backgroundPosition = `${bgPos.x}% ${bgPos.y}%`;
+  requestAnimationFrame(updateBackground);
 }
-
-animateBackground();
+updateBackground();
