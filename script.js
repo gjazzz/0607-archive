@@ -103,7 +103,7 @@ function apply3DTilt() {
 }
 
 // ----------------------------
-// LOAD ALL CLOTHING
+// LOAD ALL
 // ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
@@ -121,55 +121,6 @@ async function loadAll(cursor = "") {
 }
 
 loadAll().catch(err => console.error("LOAD FAILED:", err));
-
-// ----------------------------
-// MUSIC CONTROL (STABLE)
-// ----------------------------
-const music = document.getElementById("bgMusic");
-const volumeSlider = document.getElementById("volume");
-const musicBtn = document.getElementById("musicBtn");
-
-let musicStarted = false;
-
-// default volume
-if (music) music.volume = volumeSlider.value;
-
-// volume slider
-if (volumeSlider) {
-  volumeSlider.addEventListener("input", e => {
-    if (music) music.volume = e.target.value;
-  });
-}
-
-// toggle button
-if (musicBtn) {
-  musicBtn.addEventListener("click", () => {
-    if (!musicStarted && music) {
-      music.play().then(() => {
-        musicStarted = true;
-        musicBtn.textContent = "🔊";
-      }).catch(() => {});
-      return;
-    }
-
-    if (music.paused) {
-      music.play();
-      musicBtn.textContent = "🔊";
-    } else {
-      music.pause();
-      musicBtn.textContent = "🔈";
-    }
-  });
-}
-
-// browser-safe start on first interaction
-document.addEventListener("click", () => {
-  if (!musicStarted && music) {
-    music.play().then(() => {
-      musicStarted = true;
-    }).catch(() => {});
-  }
-}, { once: true });
 
 // ----------------------------
 // PARTICLES
@@ -215,3 +166,28 @@ window.addEventListener("resize", () => {
   canvas.width = innerWidth;
   canvas.height = innerHeight;
 });
+
+// ----------------------------
+// MOUSE BACKGROUND PARALLAX
+// ----------------------------
+let mouseX = 0, mouseY = 0;
+let bgPosX = 50, bgPosY = 50;
+
+document.addEventListener("mousemove", e => {
+  mouseX = e.clientX / window.innerWidth;
+  mouseY = e.clientY / window.innerHeight;
+});
+
+function animateBackground() {
+  const targetX = 50 + (mouseX - 0.5) * 10; // ±5%
+  const targetY = 50 + (mouseY - 0.5) * 10;
+
+  bgPosX += (targetX - bgPosX) * 0.08;
+  bgPosY += (targetY - bgPosY) * 0.08;
+
+  document.body.style.backgroundPosition = `${bgPosX}% ${bgPosY}%`;
+
+  requestAnimationFrame(animateBackground);
+}
+
+animateBackground();
