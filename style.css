@@ -5,7 +5,7 @@
   box-sizing: border-box;
 }
 
-/* BACKGROUND */
+/* BODY & BACKGROUND */
 body {
   min-height: 100vh;
   font-family: 'Orbitron', sans-serif;
@@ -13,6 +13,7 @@ body {
   color: white;
   overflow-x: hidden;
   position: relative;
+  transition: background-position 0.1s ease-out;
 }
 
 /* DARK OVERLAY */
@@ -46,7 +47,7 @@ header p {
 
 /* ROBLOX GROUP BUTTON */
 .group-btn {
-  position: absolute; /* top-right in page layout */
+  position: fixed;
   top: 20px;
   right: 20px;
   padding: 10px 20px;
@@ -57,7 +58,7 @@ header p {
   font-weight: bold;
   letter-spacing: 1px;
   transition: transform 0.3s, box-shadow 0.3s;
-  z-index: 10;
+  z-index: 20; /* Always on top */
 }
 
 .group-btn:hover {
@@ -100,10 +101,10 @@ header p {
   margin-bottom: 5px;
 }
 
-/* CARD 3D HOVER */
+/* CARD 3D HOVER & GLOW */
 .card:hover {
   transform: rotateX(5deg) rotateY(5deg) scale(1.03);
-  box-shadow: 0 0 25px rgba(255,255,255,0.3); /* changed glow to white */
+  box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
 
 /* SOCIAL BUTTONS */
@@ -130,6 +131,14 @@ header p {
   box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
 
+/* PARTICLES CANVAS */
+#particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* MUSIC CONTROLS */
 .music-controls {
   position: fixed;
@@ -138,7 +147,7 @@ header p {
   transform: translateX(-50%);
   display: flex;
   gap: 10px;
-  z-index: 5;
+  z-index: 20;
   align-items: center;
 }
 
@@ -160,12 +169,4 @@ header p {
 
 #volume {
   cursor: pointer;
-}
-
-/* PARTICLES */
-#particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
 }
