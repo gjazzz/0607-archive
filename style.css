@@ -1,15 +1,11 @@
-/* ---------------------------- */
 /* GENERAL RESET */
-/* ---------------------------- */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* ---------------------------- */
-/* BODY & BACKGROUND */
-/* ---------------------------- */
+/* BACKGROUND */
 body {
   min-height: 100vh;
   font-family: 'Orbitron', sans-serif;
@@ -28,9 +24,7 @@ body {
   z-index: -1;
 }
 
-/* ---------------------------- */
 /* HEADER */
-/* ---------------------------- */
 header {
   text-align: center;
   padding: 40px 20px;
@@ -50,11 +44,9 @@ header p {
   text-shadow: 0 0 5px #fff;
 }
 
-/* ---------------------------- */
 /* ROBLOX GROUP BUTTON */
-/* ---------------------------- */
 .group-btn {
-  position: fixed;
+  position: absolute; /* top-right in page layout */
   top: 20px;
   right: 20px;
   padding: 10px 20px;
@@ -73,9 +65,7 @@ header p {
   box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
 
-/* ---------------------------- */
 /* STORE GRID */
-/* ---------------------------- */
 #store {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -84,9 +74,7 @@ header p {
   perspective: 1000px;
 }
 
-/* ---------------------------- */
-/* CARDS */
-/* ---------------------------- */
+/* CARD STYLING */
 .card {
   background: rgba(255,255,255,0.08);
   border-radius: 14px;
@@ -104,8 +92,7 @@ header p {
   margin-bottom: 8px;
 }
 
-.card p,
-.card .price {
+.card p, .card .price {
   text-align: center;
   font-weight: bold;
   text-shadow: 0 0 8px #fff, 0 0 16px #fff;
@@ -113,15 +100,13 @@ header p {
   margin-bottom: 5px;
 }
 
-/* CARD 3D HOVER WITH WHITE GLOW */
+/* CARD 3D HOVER */
 .card:hover {
   transform: rotateX(5deg) rotateY(5deg) scale(1.03);
-  box-shadow: 0 0 25px rgba(255,255,255,0.4);
+  box-shadow: 0 0 25px rgba(255,255,255,0.3); /* changed glow to white */
 }
 
-/* ---------------------------- */
 /* SOCIAL BUTTONS */
-/* ---------------------------- */
 .social-buttons {
   display: flex;
   justify-content: center;
@@ -145,9 +130,7 @@ header p {
   box-shadow: 0 0 25px rgba(255,255,255,0.4);
 }
 
-/* ---------------------------- */
 /* MUSIC CONTROLS */
-/* ---------------------------- */
 .music-controls {
   position: fixed;
   bottom: 20px;
@@ -179,12 +162,10 @@ header p {
   cursor: pointer;
 }
 
-/* ---------------------------- */
-/* PARTICLES CANVAS */
-/* ---------------------------- */
+/* PARTICLES */
 #particles {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 1;
 }
