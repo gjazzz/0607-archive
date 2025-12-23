@@ -1,13 +1,10 @@
-/* =====================================================
-   CONFIG
-===================================================== */
 const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
 const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
-/* =====================================================
-   FETCH CLOTHING
-===================================================== */
+// ----------------------------
+// FETCH CLOTHING
+// ----------------------------
 async function fetchClothing(cursor = "") {
   const url =
     WORKER +
@@ -25,12 +22,13 @@ async function fetchClothing(cursor = "") {
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Catalog fetch failed");
+
   return res.json();
 }
 
-/* =====================================================
-   FETCH THUMBNAILS
-===================================================== */
+// ----------------------------
+// FETCH THUMBNAILS
+// ----------------------------
 async function fetchThumbnails(ids) {
   const url =
     WORKER +
@@ -44,19 +42,18 @@ async function fetchThumbnails(ids) {
 
   const res = await fetch(url);
   if (!res.ok) throw new Error("Thumbnail fetch failed");
+
   return (await res.json()).data;
 }
 
-/* =====================================================
-   RENDER CARDS
-===================================================== */
+// ----------------------------
+// RENDER CARDS
+// ----------------------------
 function renderCards(items, thumbnails) {
   const thumbMap = {};
   thumbnails.forEach(t => {
     if (t.state === "Completed") thumbMap[t.targetId] = t.imageUrl;
   });
-
-  const fragment = document.createDocumentFragment();
 
   items.forEach(item => {
     const card = document.createElement("a");
@@ -70,57 +67,44 @@ function renderCards(items, thumbnails) {
       <div class="price">7 R$</div>
     `;
 
-    fragment.appendChild(card);
+    STORE.appendChild(card);
   });
-
-  STORE.appendChild(fragment);
 }
 
-/* =====================================================
-   3D CARD TILT (STABLE + WHITE GLOW)
-===================================================== */
+// ----------------------------
+// 3D TILT
+// ----------------------------
 function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
 
   cards.forEach(card => {
-    let raf = null;
-
     card.addEventListener("mousemove", e => {
-      if (raf) return;
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
 
-      raf = requestAnimationFrame(() => {
-        const rect = card.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
 
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -5;
+      const rotateY = ((x - centerX) / centerX) * 5;
 
-        const rotateX = ((y - centerY) / centerY) * -4;
-        const rotateY = ((x - centerX) / centerX) * 4;
+      card.style.transform =
+        `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
 
-        card.style.transform =
-          `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
-
-        card.style.boxShadow =
-          "0 18px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.45)";
-
-        raf = null;
-      });
-    }, { passive: true });
+      card.style.boxShadow = "0 15px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.4)";
+    });
 
     card.addEventListener("mouseleave", () => {
-      card.style.transform =
-        "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
-      card.style.boxShadow =
-        "0 10px 25px rgba(0,0,0,0.45), 0 0 15px rgba(255,255,255,0.25)";
+      card.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+      card.style.boxShadow = "0 10px 25px rgba(0,0,0,0.4)";
     });
   });
 }
 
-/* =====================================================
-   LOAD EVERYTHING
-===================================================== */
+// ----------------------------
+// LOAD ALL CLOTHING
+// ----------------------------
 async function loadAll(cursor = "") {
   const data = await fetchClothing(cursor);
   const ids = data.data.map(i => i.id);
@@ -138,23 +122,65 @@ async function loadAll(cursor = "") {
 
 loadAll().catch(err => console.error("LOAD FAILED:", err));
 
-/* =====================================================
-   PARTICLES (RAIN EFFECT – ABOVE EVERYTHING)
-===================================================== */
+// ----------------------------
+// MUSIC CONTROL (STABLE)
+// ----------------------------
+const music = document.getElementById("bgMusic");
+const volumeSlider = document.getElementById("volume");
+const musicBtn = document.getElementById("musicBtn");
+
+let musicStarted = false;
+
+// default volume
+if (music) music.volume = volumeSlider.value;
+
+// volume slider
+if (volumeSlider) {
+  volumeSlider.addEventListener("input", e => {
+    if (music) music.volume = e.target.value;
+  });
+}
+
+// toggle button
+if (musicBtn) {
+  musicBtn.addEventListener("click", () => {
+    if (!musicStarted && music) {
+      music.play().then(() => {
+        musicStarted = true;
+        musicBtn.textContent = "🔊";
+      }).catch(() => {});
+      return;
+    }
+
+    if (music.paused) {
+      music.play();
+      musicBtn.textContent = "🔊";
+    } else {
+      music.pause();
+      musicBtn.textContent = "🔈";
+    }
+  });
+}
+
+// browser-safe start on first interaction
+document.addEventListener("click", () => {
+  if (!musicStarted && music) {
+    music.play().then(() => {
+      musicStarted = true;
+    }).catch(() => {});
+  }
+}, { once: true });
+
+// ----------------------------
+// PARTICLES
+// ----------------------------
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener("resize", resizeCanvas);
-
-const drops = [];
-const DROP_COUNT = 140;
-
-for (let i = 0; i < DROP_COUNT; i++) {
+let drops = [];
+for (let i = 0; i < 120; i++) {
   drops.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
@@ -165,30 +191,27 @@ for (let i = 0; i < DROP_COUNT; i++) {
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "rgba(255,255,255,0.35)";
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = "rgba(255,255,255,0.3)";
+  ctx.lineWidth = 2;
 
-  for (const d of drops) {
+  drops.forEach(d => {
     ctx.beginPath();
     ctx.moveTo(d.x, d.y);
     ctx.lineTo(d.x, d.y + d.length);
     ctx.stroke();
-
     d.y += d.speed;
     if (d.y > canvas.height) {
       d.y = -d.length;
       d.x = Math.random() * canvas.width;
     }
-  }
+  });
 
   requestAnimationFrame(animateParticles);
 }
 
 animateParticles();
 
-/* =====================================================
-   SMALL POLISH
-===================================================== */
-document.addEventListener("dragstart", e => {
-  if (e.target.tagName === "IMG") e.preventDefault();
+window.addEventListener("resize", () => {
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
 });
