@@ -1,193 +1,194 @@
-/* ================================
+/* =====================================================
    CONFIG
-================================ */
+===================================================== */
+const GROUP_ID = 319199393;
 const STORE = document.getElementById("store");
-const HEADER = document.querySelector("header");
+const WORKER = "https://roblox-catalog-proxy.gianlucafoti36.workers.dev";
 
-const CATALOG_URL =
-  "https://catalog.roblox.com/v1/search/items?Category=3&AssetTypes=Shirt,Pants&CreatorType=Group&CreatorTargetId=319199393&SalesTypeFilter=1&Limit=30";
-
-const THUMB_PROXY =
-  "https://roblox-catalog-proxy.gianlucafoti36.workers.dev/?url=";
-
-const CACHE = {
-  catalog: null,
-};
-
-let particlesPaused = false;
-
-/* ================================
-   FETCH + CACHE
-================================ */
-async function fetchCatalog() {
-  if (CACHE.catalog) return CACHE.catalog;
-
-  const res = await fetch(CATALOG_URL);
-  const data = await res.json();
-  CACHE.catalog = data.data || [];
-  return CACHE.catalog;
-}
-
-/* ================================
-   CREATE CARD
-================================ */
-function createCard(item) {
-  const a = document.createElement("a");
-  a.className = "card";
-  a.href = `https://www.roblox.com/catalog/${item.id}`;
-  a.target = "_blank";
-
-  const img = document.createElement("img");
-  img.loading = "lazy";
-  img.src =
-    THUMB_PROXY +
+/* =====================================================
+   FETCH CLOTHING
+===================================================== */
+async function fetchClothing(cursor = "") {
+  const url =
+    WORKER +
+    "?url=" +
     encodeURIComponent(
-      `https://thumbnails.roblox.com/v1/assets?assetIds=${item.id}&size=420x420&format=Png&type=Asset`
+      "https://catalog.roblox.com/v1/search/items?" +
+      "Category=3" +
+      "&AssetTypes=Shirt,Pants" +
+      "&CreatorType=Group" +
+      `&CreatorTargetId=${GROUP_ID}` +
+      "&SalesTypeFilter=1" +
+      "&Limit=30" +
+      (cursor ? `&Cursor=${cursor}` : "")
     );
 
-  const name = document.createElement("p");
-  name.textContent = item.name;
-
-  const price = document.createElement("div");
-  price.className = "price";
-  price.textContent = item.price ? `${item.price} R$` : "Offsale";
-
-  a.append(img, name, price);
-  return a;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Catalog fetch failed");
+  return res.json();
 }
 
-/* ================================
-   RENDER STORE
-================================ */
-async function renderStore() {
-  const items = await fetchCatalog();
-  STORE.innerHTML = "";
+/* =====================================================
+   FETCH THUMBNAILS
+===================================================== */
+async function fetchThumbnails(ids) {
+  const url =
+    WORKER +
+    "?url=" +
+    encodeURIComponent(
+      "https://thumbnails.roblox.com/v1/assets?" +
+      `assetIds=${ids.join(",")}` +
+      "&size=420x420" +
+      "&format=Png"
+    );
 
-  items.forEach((item) => {
-    STORE.appendChild(createCard(item));
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Thumbnail fetch failed");
+  return (await res.json()).data;
+}
+
+/* =====================================================
+   RENDER CARDS
+===================================================== */
+function renderCards(items, thumbnails) {
+  const thumbMap = {};
+  thumbnails.forEach(t => {
+    if (t.state === "Completed") thumbMap[t.targetId] = t.imageUrl;
   });
 
-  init3DHover();
+  const fragment = document.createDocumentFragment();
+
+  items.forEach(item => {
+    const card = document.createElement("a");
+    card.className = "card";
+    card.href = `https://www.roblox.com/catalog/${item.id}`;
+    card.target = "_blank";
+
+    card.innerHTML = `
+      <img src="${thumbMap[item.id]}" alt="">
+      <p>Unique Piece</p>
+      <div class="price">7 R$</div>
+    `;
+
+    fragment.appendChild(card);
+  });
+
+  STORE.appendChild(fragment);
 }
 
-/* ================================
-   3D HOVER (THROTTLED)
-================================ */
-function init3DHover() {
+/* =====================================================
+   3D CARD TILT (STABLE + WHITE GLOW)
+===================================================== */
+function apply3DTilt() {
   const cards = document.querySelectorAll(".card");
-  let last = 0;
 
-  cards.forEach((card) => {
-    card.addEventListener("mousemove", (e) => {
-      const now = performance.now();
-      if (now - last < 60) return;
-      last = now;
+  cards.forEach(card => {
+    let raf = null;
 
-      const r = card.getBoundingClientRect();
-      const x = e.clientX - r.left;
-      const y = e.clientY - r.top;
+    card.addEventListener("mousemove", e => {
+      if (raf) return;
 
-      const rx = ((y / r.height) - 0.5) * -10;
-      const ry = ((x / r.width) - 0.5) * 10;
+      raf = requestAnimationFrame(() => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-      card.style.transform = `
-        perspective(900px)
-        rotateX(${rx}deg)
-        rotateY(${ry}deg)
-        translateZ(15px)
-      `;
-    });
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
 
-    card.addEventListener("mouseleave", () => {
-      card.style.transform = "";
-    });
+        const rotateX = ((y - centerY) / centerY) * -4;
+        const rotateY = ((x - centerX) / centerX) * 4;
 
-    card.addEventListener("mouseenter", () => {
-      cards.forEach((c) => {
-        if (c !== card) c.classList.add("dimmed");
+        card.style.transform =
+          `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+
+        card.style.boxShadow =
+          "0 18px 40px rgba(0,0,0,0.6), 0 0 30px rgba(255,255,255,0.45)";
+
+        raf = null;
       });
-    });
+    }, { passive: true });
 
     card.addEventListener("mouseleave", () => {
-      cards.forEach((c) => c.classList.remove("dimmed"));
+      card.style.transform =
+        "perspective(1200px) rotateX(0deg) rotateY(0deg) scale(1)";
+      card.style.boxShadow =
+        "0 10px 25px rgba(0,0,0,0.45), 0 0 15px rgba(255,255,255,0.25)";
     });
   });
 }
 
-/* ================================
-   HEADER SCROLL FADE
-================================ */
-window.addEventListener("scroll", () => {
-  const y = window.scrollY;
-  const fade = Math.max(0, 1 - y / 300);
+/* =====================================================
+   LOAD EVERYTHING
+===================================================== */
+async function loadAll(cursor = "") {
+  const data = await fetchClothing(cursor);
+  const ids = data.data.map(i => i.id);
+  if (!ids.length) return;
 
-  HEADER.style.opacity = fade;
-  HEADER.style.transform = `scale(${0.95 + fade * 0.05})`;
-});
+  const thumbnails = await fetchThumbnails(ids);
+  renderCards(data.data, thumbnails);
 
-/* ================================
-   PARTICLES (RAIN)
-================================ */
-const canvas = document.createElement("canvas");
-canvas.id = "particles";
-document.body.appendChild(canvas);
-const ctx = canvas.getContext("2d");
-
-let W, H, particles = [];
-
-function resize() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-}
-resize();
-window.addEventListener("resize", resize);
-
-function createParticles() {
-  particles = [];
-  const count =
-    window.innerWidth < 600 ? 40 :
-    window.innerWidth < 1200 ? 70 : 110;
-
-  for (let i = 0; i < count; i++) {
-    particles.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      v: 1 + Math.random() * 2,
-      l: 10 + Math.random() * 20,
-    });
+  if (data.nextPageCursor) {
+    await loadAll(data.nextPageCursor);
+  } else {
+    apply3DTilt();
   }
 }
-createParticles();
 
-function drawParticles() {
-  if (particlesPaused) return;
+loadAll().catch(err => console.error("LOAD FAILED:", err));
 
-  ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = "rgba(255,255,255,0.15)";
-  ctx.lineWidth = 1;
+/* =====================================================
+   PARTICLES (RAIN EFFECT – ABOVE EVERYTHING)
+===================================================== */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
 
-  particles.forEach((p) => {
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+const drops = [];
+const DROP_COUNT = 140;
+
+for (let i = 0; i < DROP_COUNT; i++) {
+  drops.push({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    length: Math.random() * 15 + 10,
+    speed: Math.random() * 2 + 2
+  });
+}
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "rgba(255,255,255,0.35)";
+  ctx.lineWidth = 1.5;
+
+  for (const d of drops) {
     ctx.beginPath();
-    ctx.moveTo(p.x, p.y);
-    ctx.lineTo(p.x, p.y + p.l);
+    ctx.moveTo(d.x, d.y);
+    ctx.lineTo(d.x, d.y + d.length);
     ctx.stroke();
 
-    p.y += p.v;
-    if (p.y > H) p.y = -20;
-  });
+    d.y += d.speed;
+    if (d.y > canvas.height) {
+      d.y = -d.length;
+      d.x = Math.random() * canvas.width;
+    }
+  }
 
-  requestAnimationFrame(drawParticles);
+  requestAnimationFrame(animateParticles);
 }
-drawParticles();
 
-/* ================================
-   VISIBILITY PAUSE
-================================ */
-document.addEventListener("visibilitychange", () => {
-  particlesPaused = document.hidden;
+animateParticles();
+
+/* =====================================================
+   SMALL POLISH
+===================================================== */
+document.addEventListener("dragstart", e => {
+  if (e.target.tagName === "IMG") e.preventDefault();
 });
-
-/* ================================
-   INIT
-================================ */
-renderStore();
