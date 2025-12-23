@@ -49,7 +49,7 @@ header p {
 
 /* GROUP BUTTON */
 .group-btn {
-  position: fixed;
+  position: absolute; /* was fixed */
   top: 20px;
   right: 20px;
   padding: 10px 20px;
